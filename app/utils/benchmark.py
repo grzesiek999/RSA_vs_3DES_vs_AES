@@ -7,7 +7,7 @@ from app.utils.aes import generate_aes_key, encrypt_decrypt_aes
 from app.utils.des import generate_3des_key, encrypt_decrypt_3des
 
 
-def measure_time(func, *args, repeats=10, warmup=2, **kwargs):
+def measure_time(func, *args, repeats=10, warmup=5, **kwargs):
     times = []
     for i in range(repeats + warmup):
         start = time.perf_counter()
@@ -19,6 +19,7 @@ def measure_time(func, *args, repeats=10, warmup=2, **kwargs):
         "mean": statistics.mean(times),
         "median": statistics.median(times),
         "p95": statistics.quantiles(times, n=100)[94],
+        "times_sum": sum(times),
         "raw": times
     }
 
@@ -32,17 +33,29 @@ def benchmark():
         "encryption": {}
     }
 
+    key_count = [1, 10, 100, 1000]
+
     rsa_key_sizes = [2048, 3072]
     for bits in rsa_key_sizes:
-        t = measure_time(lambda: generate_rsa_key(bits), repeats=5)
-        results["keygen"][f"RSA-{bits}"] = t
+        results["keygen"][f"RSA-{bits}"] = {}
+        for count in key_count:
+            t = measure_time(lambda: generate_rsa_key(bits), repeats=count)
+            results["keygen"][f"RSA-{bits}"][f"{count}_key"] = t
 
     for bits in [128, 256]:
-        t = measure_time(lambda: generate_aes_key(bits), repeats=1000)
-        results["keygen"][f"AES-{bits}"] = t
+        results["keygen"][f"AES-{bits}"] = {}
+        for count in key_count:
+            t = measure_time(lambda: generate_aes_key(bits), repeats=count)
+            results["keygen"][f"AES-{bits}"][f"{count}_key"] = t
 
-    t = measure_time(generate_3des_key, repeats=1000)
-    results["keygen"]["3DES"] = t
+    results["keygen"]["3DES"] = {}
+    for count in key_count:
+        t = measure_time(generate_3des_key, repeats=count)
+        results["keygen"]["3DES"][f"{count}_key"] = t
+
+
+
+# TO DO
 
     # --- Encryption/Decryption ---
     data_sizes = [128, 512, 2048, 8192, 32768, 1048576]  # 1 MB max
