@@ -56,7 +56,7 @@ def benchmark():
 
     # --- Encryption & Decryption ---
     # AES & 3DES
-    data_sizes = [128, 512, 2048, 8192, 32768, 1048576, 4194304, 16777216]  # [128 B, 512 B, 2 KB, 8 KB, 32 KB, 1 Mb, 4 MB, 16 MB]
+    data_sizes = [128, 512, 2048, 8192, 32_768, 1_048_576, 4_194_304, 16_777_216]  # [128 B, 512 B, 2 KB, 8 KB, 32 KB, 1 Mb, 4 MB, 16 MB]
     for size in data_sizes:
         data = os.urandom(size)
         results["encryption"][size] = {}
