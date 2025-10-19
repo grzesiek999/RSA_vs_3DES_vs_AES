@@ -72,9 +72,9 @@ def benchmark():
         key_aes256 = generate_aes_key(256)
         key_3des = generate_3des_key()
 
-        results["encryption"]["sym"][size]["AES-128"] = measure_time(encrypt_decrypt_aes, data, key_aes128, repeats=30)
-        results["encryption"]["sym"][size]["AES-256"] = measure_time(encrypt_decrypt_aes, data, key_aes256, repeats=30)
-        results["encryption"]["sym"][size]["3DES"] = measure_time(encrypt_decrypt_3des, data, key_3des, repeats=30)
+        results["encryption"]["sym"][size]["AES-128"] = measure_time(encrypt_decrypt_aes, data, key_aes128, repeats=1000)
+        results["encryption"]["sym"][size]["AES-256"] = measure_time(encrypt_decrypt_aes, data, key_aes256, repeats=1000)
+        results["encryption"]["sym"][size]["3DES"] = measure_time(encrypt_decrypt_3des, data, key_3des, repeats=1000)
 
     # RSA
     rsa_private_2048 = generate_rsa_key(2048)
@@ -91,10 +91,10 @@ def benchmark():
         data = os.urandom(size)
         results["encryption"]["asym"][size] = {}
 
-        results["encryption"]["asym"][size]["RSA-2048"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_2048, repeats=30)
+        results["encryption"]["asym"][size]["RSA-2048"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_2048, repeats=1000)
         if size <= max_3072:
-            results["encryption"]["asym"][size]["RSA-3072"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_3072, repeats=30)
+            results["encryption"]["asym"][size]["RSA-3072"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_3072, repeats=1000)
         if size <= max_4096:
-            results["encryption"]["asym"][size]["RSA-4096"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_4096, repeats=30)
+            results["encryption"]["asym"][size]["RSA-4096"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_4096, repeats=1000)
 
     return results

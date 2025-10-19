@@ -157,28 +157,40 @@ def plot_results(results: Dict):
         )
     else: raise Exception("Symmetric keys generation total time data not found !")
 
-
     # --- encdec ---
     asym_sizes = get_sizes(results,"asym")
     sym_sizes = get_sizes(results,"sym")
     if asym_sizes and sym_sizes:
-        '''
         # --- encdec time vs data
         asym_encdec = calc_encdec(results, asym_names, asym_sizes, "asym")
         if asym_encdec:
             create_chart(
-                names=asym_names,
+                names=asym_sizes,
                 data=asym_encdec,
                 type="plot",
                 title="Encrypt and decrypt times vs data size",
                 ylabel="Time (s)",
                 xlabel="Data size (Bytes)",
-                target_path=f"encdec/asym/{count}_keys_enc.png",
+                target_path=f"encdec/asym/encdec.png",
                 xscale="log",
                 legend=True,
             )
         else: raise Exception("Asymmetric encrypt and decrypt data not found !")
-        '''
+
+        sym_encdec = calc_encdec(results, sym_names, sym_sizes, "sym")
+        if sym_encdec:
+            create_chart(
+                names=sym_sizes,
+                data=sym_encdec,
+                type="plot",
+                title="Encrypt and decrypt times vs data size",
+                ylabel="Time (s)",
+                xlabel="Data size (Bytes)",
+                target_path=f"encdec/sym/encdec.png",
+                xscale="log",
+                legend=True,
+            )
+        else: raise Exception("Symmetric encrypt and decrypt data not found !")
 
         # --- throughput ---
         asym_throughputs = calc_throughputs(results, asym_names, asym_sizes, "asym")
