@@ -13,7 +13,16 @@ def get_sizes(results: dict, alg_type: str) -> list:
     sizes.sort()
     return sizes
 
-def calculate_throughputs(results: dict, names: list, sizes: list, alg_type: str) -> dict:
+def calc_encdec(results: dict, names: list, sizes: list, alg_type: str) -> dict:
+    enddec_time = {
+        alg: [
+            results["encryption"][f"{alg_type}"][size][alg]["mean"]
+            for size in sizes
+        ] for alg in names
+    }
+    return enddec_time
+
+def calc_throughputs(results: dict, names: list, sizes: list, alg_type: str) -> dict:
     throughputs = {
         alg: [
             (size / 1_048_576) / results["encryption"][f"{alg_type}"][size][alg]["mean"]
@@ -148,19 +157,37 @@ def plot_results(results: Dict):
         )
     else: raise Exception("Symmetric keys generation total time data not found !")
 
+
     # --- encdec ---
-
-
-    # --- throughput ---
     asym_sizes = get_sizes(results,"asym")
-    if asym_sizes:
-        asym_throughputs = calculate_throughputs(results, asym_names, asym_sizes, "asym")
+    sym_sizes = get_sizes(results,"sym")
+    if asym_sizes and sym_sizes:
+        '''
+        # --- encdec time vs data
+        asym_encdec = calc_encdec(results, asym_names, asym_sizes, "asym")
+        if asym_encdec:
+            create_chart(
+                names=asym_names,
+                data=asym_encdec,
+                type="plot",
+                title="Encrypt and decrypt times vs data size",
+                ylabel="Time (s)",
+                xlabel="Data size (Bytes)",
+                target_path=f"encdec/asym/{count}_keys_enc.png",
+                xscale="log",
+                legend=True,
+            )
+        else: raise Exception("Asymmetric encrypt and decrypt data not found !")
+        '''
+
+        # --- throughput ---
+        asym_throughputs = calc_throughputs(results, asym_names, asym_sizes, "asym")
         if asym_throughputs:
             create_chart(
                 names=asym_sizes,
                 data=asym_throughputs,
                 type="plot",
-                title="Throughput",
+                title="Throughput vs data size",
                 ylabel="Throughput (MB/s)",
                 xlabel="Data size (Bytes)",
                 target_path="throughput/asym/throughput.png",
@@ -168,17 +195,14 @@ def plot_results(results: Dict):
                 legend=True
             )
         else: raise Exception("Asymetric algorithm throughputs data not found !")
-    else: raise Exception("Asymetric algorithm sizes data not found !")
 
-    sym_sizes = get_sizes(results,"sym")
-    if sym_sizes:
-        sym_throughputs = calculate_throughputs(results, sym_names, sym_sizes, "sym")
+        sym_throughputs = calc_throughputs(results, sym_names, sym_sizes, "sym")
         if sym_throughputs:
             create_chart(
                 names=sym_sizes,
                 data=sym_throughputs,
                 type="plot",
-                title="Throughput",
+                title="Throughput vs data size",
                 ylabel="Throughput (MB/s)",
                 xlabel="Data size (Bytes)",
                 target_path="throughput/sym/throughput.png",
@@ -186,4 +210,3 @@ def plot_results(results: Dict):
                 legend=True
             )
         else: raise Exception("Symetric algorithm throughputs data not found !")
-    else: raise Exception("Symetric algorithm sizes data not found !")
