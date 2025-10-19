@@ -57,17 +57,18 @@ def benchmark():
     # --- Encryption & Decryption ---
     # AES & 3DES
     data_sizes = [128, 512, 2048, 8192, 32_768, 1_048_576, 4_194_304, 16_777_216]  # [128 B, 512 B, 2 KB, 8 KB, 32 KB, 1 Mb, 4 MB, 16 MB]
+    results["encryption"]["sym"] = {}
     for size in data_sizes:
         data = os.urandom(size)
-        results["encryption"][size] = {}
+        results["encryption"]["sym"][size] = {}
 
         key_aes128 = generate_aes_key(128)
         key_aes256 = generate_aes_key(256)
         key_3des = generate_3des_key()
 
-        results["encryption"][size]["AES-128"] = measure_time(encrypt_decrypt_aes, data, key_aes128, repeats=3)
-        results["encryption"][size]["AES-256"] = measure_time(encrypt_decrypt_aes, data, key_aes256, repeats=3)
-        results["encryption"][size]["3DES"] = measure_time(encrypt_decrypt_3des, data, key_3des, repeats=3)
+        results["encryption"]["sym"][size]["AES-128"] = measure_time(encrypt_decrypt_aes, data, key_aes128, repeats=30)
+        results["encryption"]["sym"][size]["AES-256"] = measure_time(encrypt_decrypt_aes, data, key_aes256, repeats=30)
+        results["encryption"]["sym"][size]["3DES"] = measure_time(encrypt_decrypt_3des, data, key_3des, repeats=30)
 
     # RSA
     def rsa_max_message_size(bits: int, hash_len: int = 32) -> int:
@@ -77,16 +78,20 @@ def benchmark():
     rsa_private_3072 = generate_rsa_key(3072)
 
     small_sizes = [1, 64, 128, 190, 256, 300]
+    results["encryption"]["asym"] = {}
     for size in small_sizes:
         max_2048 = rsa_max_message_size(2048)
         max_3072 = rsa_max_message_size(3072)
 
         if size > max_2048:
             continue
+
         data = os.urandom(size)
-        results["encryption"][f"RSA-2048-{size}B"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_2048, repeats=3)
+        results["encryption"]["asym"][size] = {}
+
+        results["encryption"]["asym"][size]["RSA-2048"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_2048, repeats=30)
 
         if size <= max_3072:
-            results["encryption"][f"RSA-3072-{size}B"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_3072, repeats=3)
+            results["encryption"]["asym"][size]["RSA-3072"] = measure_time(encrypt_decrypt_rsa, data, rsa_private_3072, repeats=30)
 
     return results
