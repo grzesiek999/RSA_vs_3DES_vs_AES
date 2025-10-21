@@ -1,17 +1,21 @@
 import json
-from pathlib import Path
+import threading
 from app.utils.benchmark import benchmark
 from app.utils.plots import plot_results
+from app.utils.animation import blinking_dots
 
 
 if __name__ == "__main__":
-    print("⏳ Running benchmark cryptographic (RSA, AES, 3DES)...")
+    stop_event = threading.Event()
+    t = threading.Thread(target=blinking_dots, args=("⏳ Running benchmark cryptographic (RSA, AES, 3DES)", "✅ Benchmark completed.           ", stop_event))
+    t.start()
     results = benchmark()
-    results_path = Path("results/benchmark/results.json")
+    stop_event.set()
+    t.join()
 
-    with open(results_path, "w") as f:
+    with open("results/benchmark/results.json", "w") as f:
         json.dump(results, f, indent=2)
+    print("✅ Results saved completed.")
 
     plot_results(results)
-    print("✅ Results saved completed.")
     print("✅ Charts saved completed.")
